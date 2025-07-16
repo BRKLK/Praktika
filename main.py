@@ -11,12 +11,19 @@ import sys
 
 # Filtering Our Data (only 1s and 0s)
 filter_train = (y_train == 0) | (y_train == 1)
+filter_test = (y_test == 0) | (y_test == 1)
+
 x_train_filtered, y_train_filtered = x_train[filter_train], y_train[filter_train]
+x_test_filtered, y_test_filtered = x_test[filter_test], y_test[filter_test]
 
 # Normalizing and Flattening images 
 x_train_filtered = x_train_filtered / 255.0
 x_train_filtered = x_train_filtered.reshape(x_train_filtered.shape[0], -1)
 y_train_filtered = y_train_filtered.reshape(-1, 1)
+
+x_test_filtered  = x_test_filtered / 255.0
+x_test_filtered = x_test_filtered.reshape(x_test_filtered.shape[0], -1)
+y_test_filtered = y_test_filtered.reshape(-1, 1)
 
 # Number of units(neurons) per layer
 input_units_num = x_train_filtered.shape[1]
@@ -172,7 +179,7 @@ def model_summary(W1, b1, W2, b2, W3, b3, training_time, initial_cost, final_cos
     print(f"- Initial Cost Value: {initial_cost:.4f}")
     print(f"- Final Cost Value: {final_cost:.4f}")
     print(f"- Cost Reduction: {cost_reduction:.2f}%")
-    print(f"- Accuracy: {accuracy:.5f}%\n")
+    print(f"- Test Data Accuracy: {accuracy:.5f}%\n")
     print(f"- Training Time: {training_time:.2f} seconds\n")
 
     print("Weight and Bias Parameters:")
@@ -223,7 +230,7 @@ def display_predictions(sample_images, predictions, sample_labels):
 # Configuration
 init_method = 'r' # 'r' stands for random
 activation = 'r' # 's' stands for sigmoid activation function and 'r' is for relu
-mode = 't' # 't' for training, 'p' for prediction (if we  already got weights and biases)
+mode = 'p' # 't' for training, 'p' for prediction (if we  already got weights and biases)
 learning_rate = 0.01
 num_of_epochs = 10_000
 
@@ -281,7 +288,7 @@ if mode == 't':
     np.save("model\\b3.npy", b3)
     
     # Summarizing the model
-    accuracy = compute_accuracy(x_train_filtered, y_train_filtered, W1, b1, W2, b2, W3, b3, activation_hidden)
+    accuracy = compute_accuracy(x_test_filtered, y_test_filtered, W1, b1, W2, b2, W3, b3, activation_hidden)
     model_summary(W1, b1, W2, b2, W3, b3, training_time, costs[0], costs[-1], learning_rate, num_of_epochs, activation_hidden, init_method, accuracy)
 
 elif mode == "p":
@@ -299,9 +306,9 @@ elif mode == "p":
 
     start, end = map(int, user_input.split('-'))
 
-    x_train_sample = x_train_filtered[start: end+1]
-    y_train_sample = y_train_filtered[start: end+1]
-    predictions = predict(x_train_sample, W1, b1, W2, b2, W3, b3, activation_hidden)
+    x_test_sample = x_test_filtered[start: end+1]
+    y_test_sample = y_test_filtered[start: end+1]
+    predictions = predict(x_test_sample, W1, b1, W2, b2, W3, b3, activation_hidden)
 
-    display_predictions(x_train_sample, predictions, y_train_sample)
+    display_predictions(x_test_sample, predictions, y_test_sample)
 
